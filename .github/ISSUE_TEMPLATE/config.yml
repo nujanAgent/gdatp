@@ -1,0 +1,10 @@
+blank_issues_enabled: false
+
+contact_links:
+  - name: A problem Godot's own editor has too
+    url: https://github.com/godotengine/godot/issues
+    about: GDatp is Godot's Android editor with a few changes; a problem Godot's own editor also has belongs to Godot.
+
+  - name: Questions about using Godot
+    url: https://godotengine.org/community
+    about: Godot's community channels answer questions about the engine and the editor.
