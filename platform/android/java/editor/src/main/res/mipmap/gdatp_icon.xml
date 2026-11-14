@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 7 and 7.1 have no adaptive icons: the same layers, flattened. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+	<item>
+		<shape android:shape="rectangle">
+			<solid android:color="@color/gdatp_icon_background" />
+			<corners android:radius="16dp" />
+		</shape>
+	</item>
+	<item android:drawable="@drawable/gdatp_icon_foreground" />
+</layer-list>

@@ -1,0 +1,2316 @@
+{
+  "tools": [
+    {
+      "name": "status",
+      "description": "What GDatp is doing: the editor's state, the open project and scenes, readiness, the run. Call it first.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "description": "A write's request_id, to learn whether that write landed."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true
+      }
+    },
+    {
+      "name": "projects",
+      "description": "The projects GDatp can open, newest first, with what each one's plan says it is; or one's details, or the deleted.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "description": "A project's name or folder, for its renderer, files, scenes, scripts and size."
+          },
+          "deleted": {
+            "type": "boolean",
+            "description": "List the projects in GDatp's trash instead, which projects_edit restore brings back."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "_meta": {
+        "com.nujan-agent.atp/group": "read"
+      }
+    },
+    {
+      "name": "projects_edit",
+      "description": "Rename, duplicate, delete (to a trash kept 30 days) or restore a project; needs no open project.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "enum": [
+              "rename",
+              "duplicate",
+              "delete",
+              "restore"
+            ],
+            "description": "rename: the name the project shows, not its folder. duplicate: a copy in GDatp's storage, without Godot's import cache. delete: a project in GDatp's storage moves to its trash. restore: brings one back from the trash. rename and delete refuse the project open in the editor."
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "project": {
+                "type": "string",
+                "description": "The project's name or folder; for restore, a deleted project's."
+              },
+              "name": {
+                "type": "string",
+                "description": "The new name, for rename and duplicate."
+              }
+            },
+            "required": [
+              "project"
+            ]
+          }
+        },
+        "required": [
+          "op",
+          "params"
+        ]
+      },
+      "annotations": {
+        "destructiveHint": true
+      },
+      "_meta": {
+        "com.nujan-agent.atp/group": "edit"
+      }
+    },
+    {
+      "name": "project_create",
+      "description": "Make a new, empty project and open it, for the game you are about to design and build yourself. Read guide first.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The project's name, such as Coin Rush."
+          },
+          "template": {
+            "type": "string",
+            "enum": [
+              "2d",
+              "3d",
+              "empty"
+            ],
+            "description": "2d when left out: a main scene with one Node2D. 3d: a main scene with a light, an environment and a camera. empty: no scene."
+          },
+          "orientation": {
+            "type": "string",
+            "enum": [
+              "landscape",
+              "portrait"
+            ],
+            "description": "landscape when left out."
+          },
+          "pixel_art": {
+            "type": "boolean",
+            "description": "Textures drawn sharp, without smoothing, for pixel art."
+          },
+          "renderer": {
+            "type": "string",
+            "enum": [
+              "compatibility",
+              "mobile",
+              "forward_plus"
+            ],
+            "description": "compatibility when left out: runs on every phone and on the web. mobile: Vulkan, better 3D lighting. forward_plus: for desktop games; phones run it with mobile."
+          },
+          "open": {
+            "type": "boolean",
+            "description": "Open it in the editor; true when left out."
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "_meta": {
+        "com.nujan-agent.atp/group": "edit"
+      }
+    },
+    {
+      "name": "project_open",
+      "description": "Open an earlier project to change it, when asked; a new game needs project_create. Refused with unsaved changes.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The project's name or its folder's name, as projects lists them."
+          },
+          "path": {
+            "type": "string",
+            "description": "The project's folder, instead of its name."
+          },
+          "confirm": {
+            "type": "string",
+            "description": "The code a refused project_open gave, only when the person asked to change this existing game."
+          }
+        }
+      },
+      "_meta": {
+        "com.nujan-agent.atp/group": "edit"
+      }
+    },
+    {
+      "name": "screenshot",
+      "description": "A picture of the editor or the running game; burst shows how the game moves, region a part up close.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": "string",
+            "enum": [
+              "editor",
+              "editor_2d",
+              "editor_3d",
+              "game"
+            ],
+            "description": "What to capture; editor when left out. editor_2d and editor_3d show that view first. game starts the game when none is running."
+          },
+          "max_size": {
+            "type": "integer",
+            "description": "The longest side in pixels, 64 to 2048; 1024 when left out."
+          },
+          "question": {
+            "type": "string",
+            "description": "What to find out from the picture, such as: is the player on the platform?"
+          },
+          "scene": {
+            "type": "string",
+            "description": "editor views: the res:// scene to show first; the open one when left out. game: the scene to start when no game is running."
+          },
+          "burst": {
+            "type": "integer",
+            "description": "game: 2 to 9 frames as one numbered picture, with how much changed between frames and where, to see motion, flicker or what does not move."
+          },
+          "every_ms": {
+            "type": "integer",
+            "description": "burst: milliseconds between frames, 33 to 2000; 250 when left out."
+          },
+          "hold": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "burst: input actions held down through every frame, such as move_right, to see what they do."
+          },
+          "press": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "burst: input actions pressed for the first frame only, such as jump, to see what follows."
+          },
+          "region": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "description": "game: only this part of the screen, [x, y, width, height] in full_size pixels, enlarged so small things can be read."
+          },
+          "around": {
+            "type": "string",
+            "description": "game: in place of region, the part of the screen around this node, by its path, such as Main/Player."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "_meta": {
+        "com.nujan-agent.atp/group": "read"
+      }
+    },
+    {
+      "name": "project_read",
+      "description": "Project facts: info, settings under a prefix, input_map (builtin adds Godot's own ui_ actions), autoloads.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "enum": [
+              "info",
+              "settings",
+              "input_map",
+              "autoloads"
+            ]
+          },
+          "prefix": {
+            "type": "string",
+            "description": "settings: names that start with this, such as display/window."
+          },
+          "builtin": {
+            "type": "boolean",
+            "description": "input_map: also list Godot's own ui_ actions."
+          }
+        },
+        "required": [
+          "op"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "_meta": {
+        "com.nujan-agent.atp/group": "read"
+      }
+    },
+    {
+      "name": "files_read",
+      "description": "Text files under res://: list a folder, read a file's lines, or search them for text or a regex.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "enum": [
+              "list",
+              "read",
+              "search"
+            ]
+          },
+          "dir": {
+            "type": "string",
+            "description": "list and search: a res:// folder; res:// when left out."
+          },
+          "glob": {
+            "type": "string",
+            "description": "list: a file name pattern, such as *.gd or *.tscn."
+          },
+          "recursive": {
+            "type": "boolean",
+            "description": "list: into subfolders too; true when left out."
+          },
+          "path": {
+            "type": "string",
+            "description": "read: the res:// file."
+          },
+          "from_line": {
+            "type": "integer",
+            "description": "read: the first line, from 1."
+          },
+          "to_line": {
+            "type": "integer",
+            "description": "read: the last line."
+          },
+          "text": {
+            "type": "string",
+            "description": "search: the text to find, or a regular expression with regex: true."
+          },
+          "regex": {
+            "type": "boolean"
+          },
+          "offset": {
+            "type": "integer"
+          },
+          "limit": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "op"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "_meta": {
+        "com.nujan-agent.atp/group": "read"
+      }
+    },
+    {
+      "name": "scene_read",
+      "description": "A scene as data: tree, node, find; spatial reads 3D places and sizes, what the camera sees, and what floats or overlaps.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "enum": [
+              "tree",
+              "node",
+              "find",
+              "spatial"
+            ]
+          },
+          "scene": {
+            "type": "string",
+            "description": "A res:// scene, open or not; the open scene when left out."
+          },
+          "depth": {
+            "type": "integer",
+            "description": "tree: how many levels; 6 when left out."
+          },
+          "path": {
+            "type": "string",
+            "description": "node: the node's path from the scene's root."
+          },
+          "all": {
+            "type": "boolean",
+            "description": "node: every property, not only those changed from their defaults."
+          },
+          "name": {
+            "type": "string",
+            "description": "find: part of a node's name."
+          },
+          "class": {
+            "type": "string",
+            "description": "find: a class, such as CharacterBody2D."
+          },
+          "group": {
+            "type": "string",
+            "description": "find: a group's name."
+          },
+          "script": {
+            "type": "string",
+            "description": "find: a res:// script attached to the node."
+          },
+          "offset": {
+            "type": "integer"
+          },
+          "limit": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "op"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "_meta": {
+        "com.nujan-agent.atp/group": "read"
+      }
+    },
+    {
+      "name": "parts",
+      "description": "Tested systems to build a game on, placed in the project: touch, menus, sound, music, sky, textures, heroes, voxels.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "enum": [
+              "list",
+              "add",
+              "show"
+            ],
+            "description": "list: what there is. add: place parts in the open project and say how to use them. show: how to use them, placing nothing."
+          },
+          "names": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "add, show: part names from list, such as touch and screens."
+          }
+        },
+        "required": [
+          "op"
+        ]
+      },
+      "_meta": {
+        "com.nujan-agent.atp/group": "edit"
+      }
+    },
+    {
+      "name": "guide",
+      "description": "How to make games here: genres, visual styles, systems, inventing and studying. No topic lists them.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "topic": {
+            "type": "string",
+            "description": "A topic from the list, such as genre_puzzle or style_neon. Left out: the list."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "_meta": {
+        "com.nujan-agent.atp/group": "read"
+      }
+    },
+    {
+      "name": "docs",
+      "description": "This editor's Godot class reference: a class (filter its members), one Class.member in full, or a search.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "enum": [
+              "class",
+              "member",
+              "search"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "description": "class: a class name, such as Area2D; member: Class.member, such as Node.add_child."
+          },
+          "filter": {
+            "type": "string",
+            "description": "class: only members whose names contain this."
+          },
+          "text": {
+            "type": "string",
+            "description": "search: words to find in class names."
+          }
+        },
+        "required": [
+          "op"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "_meta": {
+        "com.nujan-agent.atp/group": "read"
+      }
+    },
+    {
+      "name": "logs",
+      "description": "The editor's log, the Output panel (with the game's prints) and the debugger's Errors tab, newest last.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": [
+              "all",
+              "editor",
+              "output"
+            ],
+            "description": "output is the Output panel and the Errors tab; all when left out."
+          },
+          "level": {
+            "type": "string",
+            "description": "editor: all when left out, or error or warning."
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Lines from each, up to 400; 40 when left out."
+          },
+          "since_last": {
+            "type": "boolean",
+            "description": "Only what each source added since the last logs call: true after a run, so what was read before is not read again."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "_meta": {
+        "com.nujan-agent.atp/group": "read"
+      }
+    },
+    {
+      "name": "game_read",
+      "description": "The running game as data: tree, node, find, ui, audio, watch, monitors; check passes or fails, sample reads over frames.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "enum": [
+              "tree",
+              "node",
+              "find",
+              "ui",
+              "audio",
+              "watch",
+              "monitors",
+              "check",
+              "sample"
+            ],
+            "description": "audio: each bus with its loudest level in the last frame, and each audio player with whether it is playing. watch reads the nodes in the nujan_watch group."
+          },
+          "path": {
+            "type": "string",
+            "description": "node and sample: the node's path from the running scene's root."
+          },
+          "properties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "node: values to read, indexed like position:y or getters like is_on_floor; sample: up to 8, read each frame."
+          },
+          "frames": {
+            "type": "integer",
+            "description": "sample: physics frames to read, 1 to 300; 30 when left out."
+          },
+          "every": {
+            "type": "integer",
+            "description": "sample: keep every this many frames; 1 when left out."
+          },
+          "checks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "description": "The node's path from the running scene's root."
+                },
+                "group": {
+                  "type": "string",
+                  "description": "In place of path: the number of nodes in this group is checked."
+                },
+                "property": {
+                  "type": "string",
+                  "description": "A property, indexed like position:y, or a getter like is_on_floor or get_child_count."
+                },
+                "equals": {
+                  "type": "string",
+                  "description": "The value as text, typed as the property is: 5, true, [x, y] for a vector, #rrggbb for a colour."
+                },
+                "not_equals": {
+                  "type": "string",
+                  "description": "A value the property must not have, written as for equals."
+                },
+                "near": {
+                  "type": "string",
+                  "description": "A number, or [x, y] for a vector, that the property must be within tolerance of."
+                },
+                "tolerance": {
+                  "type": "number",
+                  "description": "near: how far off still passes; 0.01 when left out."
+                },
+                "gt": {
+                  "type": "number",
+                  "description": "Passes when the property is greater than this."
+                },
+                "lt": {
+                  "type": "number",
+                  "description": "Passes when the property is less than this."
+                },
+                "contains": {
+                  "type": "string",
+                  "description": "Text the property holds, or a node's name or path in a list of nodes."
+                },
+                "exists": {
+                  "type": "boolean",
+                  "description": "Whether a node is at path."
+                }
+              }
+            },
+            "description": "check: each is a node's path (or a group), a property, and one test such as equals; all must pass."
+          },
+          "class": {
+            "type": "string",
+            "description": "find: an engine class, such as CharacterBody2D, or a script's class_name."
+          },
+          "name": {
+            "type": "string",
+            "description": "find: part of the node's name, or a pattern with * and ?."
+          },
+          "group": {
+            "type": "string",
+            "description": "find: a group the node is in."
+          },
+          "text": {
+            "type": "string",
+            "description": "find: part of a control's text."
+          }
+        },
+        "required": [
+          "op"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "_meta": {
+        "com.nujan-agent.atp/group": "read"
+      }
+    },
+    {
+      "name": "scene_edit",
+      "description": "Change a scene as one undo step: new_scene, add, set, remove, rename, move, duplicate, scripts, signals, groups.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "ops": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "Steps, each with an op: new_scene {path, root} first when making a scene; add {type or scene, name, parent, properties}; set {node, properties}; remove {node}; rename {node, name}; move {node, parent, index}; duplicate {node, name}; attach_script {node, script}; connect and disconnect {from, signal, to, method}; group_add and group_remove {node, group}. Values: [x, y], \"#rrggbb\", \"res://...\", {\"type\": \"CircleShape2D\", \"radius\": 16}."
+          },
+          "scene": {
+            "type": "string",
+            "description": "The res:// scene to change, opened if it is not open. Needed unless the steps begin with new_scene."
+          },
+          "open": {
+            "type": "boolean",
+            "description": "false refuses to switch scenes instead of opening the one named."
+          },
+          "save": {
+            "type": "boolean",
+            "description": "Save the scene afterwards; true when left out."
+          },
+          "project": {
+            "type": "string",
+            "description": "The project the change is meant for; refused when another is open."
+          },
+          "request_id": {
+            "type": "string",
+            "description": "An id status can answer for, if this call times out."
+          }
+        },
+        "required": [
+          "ops"
+        ]
+      },
+      "annotations": {
+        "destructiveHint": true
+      },
+      "_meta": {
+        "com.nujan-agent.atp/group": "edit"
+      }
+    },
+    {
+      "name": "script_edit",
+      "description": "Create, replace or patch a GDScript file; it is refused, with the line, when it does not compile.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "enum": [
+              "create",
+              "replace",
+              "patch"
+            ]
+          },
+          "path": {
+            "type": "string",
+            "description": "The res:// script, such as res://player.gd."
+          },
+          "content": {
+            "type": "string",
+            "description": "create and replace: the whole script."
+          },
+          "edits": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "old": {
+                  "type": "string"
+                },
+                "new": {
+                  "type": "string"
+                },
+                "all": {
+                  "type": "boolean"
+                },
+                "line": {
+                  "type": "integer"
+                },
+                "text": {
+                  "type": "string"
+                },
+                "delete_from": {
+                  "type": "integer"
+                },
+                "delete_to": {
+                  "type": "integer"
+                }
+              }
+            },
+            "description": "patch, applied in order: {old, new} replaces exact text found once, or every match with all: true; {line, text} inserts text before that line; {delete_from, delete_to} removes those lines."
+          },
+          "project": {
+            "type": "string"
+          },
+          "request_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "op",
+          "path"
+        ]
+      },
+      "annotations": {
+        "destructiveHint": true
+      },
+      "_meta": {
+        "com.nujan-agent.atp/group": "edit"
+      }
+    },
+    {
+      "name": "files_edit",
+      "description": "Write text or base64 files, make folders, move or rename (what refers to it follows), delete (kept) or restore.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "enum": [
+              "write",
+              "mkdir",
+              "move",
+              "delete",
+              "restore"
+            ]
+          },
+          "path": {
+            "type": "string",
+            "description": "The res:// file or folder; scripts go through script_edit."
+          },
+          "text": {
+            "type": "string",
+            "description": "write: the file's text; a .gdshader or .gdshaderinc is written only when it compiles."
+          },
+          "base64": {
+            "type": "string",
+            "contentEncoding": "base64",
+            "description": "write: the file's bytes, for images and sounds, which are imported before it answers."
+          },
+          "from": {
+            "type": "string",
+            "description": "move: the res:// file or folder where it is now."
+          },
+          "to": {
+            "type": "string",
+            "description": "move: the res:// path it goes to."
+          },
+          "project": {
+            "type": "string"
+          },
+          "request_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "op"
+        ]
+      },
+      "annotations": {
+        "destructiveHint": true
+      },
+      "_meta": {
+        "com.nujan-agent.atp/group": "edit"
+      }
+    },
+    {
+      "name": "project_edit",
+      "description": "Change project settings, the main scene, input actions and autoloads; undo restore_setting brings one back.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "enum": [
+              "setting_set",
+              "main_scene_set",
+              "input_action_set",
+              "input_action_remove",
+              "autoload_add",
+              "autoload_remove"
+            ]
+          },
+          "key": {
+            "type": "string",
+            "description": "setting_set: the setting's full name, such as display/window/size/viewport_width."
+          },
+          "value": {
+            "type": "string",
+            "description": "setting_set: the value as text, converted to the setting's own type: 1280, true, [x, y], #rrggbb."
+          },
+          "new": {
+            "type": "boolean",
+            "description": "setting_set: add a setting the project does not have yet."
+          },
+          "path": {
+            "type": "string",
+            "description": "main_scene_set: a res:// scene; autoload_add: a res:// script or scene."
+          },
+          "name": {
+            "type": "string",
+            "description": "An input action's name, such as jump, or an autoload's, such as GameState."
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "input_action_set: {\"key\": \"Space\"}, {\"mouse\": \"left\"}, {\"joypad_button\": 0} or {\"joypad_axis\": 0, \"value\": -1}; merged with the action's events."
+          },
+          "replace": {
+            "type": "boolean",
+            "description": "input_action_set: replace the action's events instead of adding to them."
+          },
+          "deadzone": {
+            "type": "number"
+          },
+          "singleton": {
+            "type": "boolean",
+            "description": "autoload_add: reachable by its name everywhere; true when left out."
+          },
+          "project": {
+            "type": "string"
+          },
+          "request_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "op"
+        ]
+      },
+      "annotations": {
+        "destructiveHint": true
+      },
+      "_meta": {
+        "com.nujan-agent.atp/group": "edit"
+      }
+    },
+    {
+      "name": "undo",
+      "description": "Undo or redo NuJan's scene steps, list history and what can be restored, or put back a script or setting NuJan changed.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "enum": [
+              "undo",
+              "redo",
+              "history",
+              "restore_file",
+              "restore_setting"
+            ]
+          },
+          "count": {
+            "type": "integer",
+            "description": "undo and redo: how many steps, up to 50; 1 when left out."
+          },
+          "any": {
+            "type": "boolean",
+            "description": "undo: also take back the person's own steps."
+          },
+          "path": {
+            "type": "string",
+            "description": "restore_file: the res:// script; refused while it has unsaved changes in the script editor."
+          },
+          "key": {
+            "type": "string",
+            "description": "restore_setting: the setting's full name."
+          }
+        },
+        "required": [
+          "op"
+        ]
+      },
+      "_meta": {
+        "com.nujan-agent.atp/group": "edit"
+      }
+    },
+    {
+      "name": "run",
+      "description": "Play, stop or restart the game; try plays past its first screen and lists what broke; pause, step and set its speed.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "enum": [
+              "play",
+              "stop",
+              "restart",
+              "try",
+              "state",
+              "pause",
+              "resume",
+              "step",
+              "step_until",
+              "speed",
+              "mute"
+            ]
+          },
+          "scene": {
+            "type": "string",
+            "description": "play: main when left out, current, or a res:// scene."
+          },
+          "wait_s": {
+            "type": "number",
+            "description": "play: seconds to wait for the game to be live, 1 to 60; 10 when left out."
+          },
+          "frozen": {
+            "type": "boolean",
+            "description": "play: pause the game as it starts, after its first frame, so game_edit can set up a test."
+          },
+          "frames": {
+            "type": "integer",
+            "description": "step: frames to move, 1 to 600, 1 when left out; step_until: the most frames to try, 300 when left out."
+          },
+          "hold": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "step and step_until: input actions held down for every frame, such as move_right."
+          },
+          "press": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "step and step_until: input actions pressed for the first frame only, such as jump."
+          },
+          "checks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "description": "The node's path from the running scene's root."
+                },
+                "group": {
+                  "type": "string",
+                  "description": "In place of path: the number of nodes in this group is checked."
+                },
+                "property": {
+                  "type": "string",
+                  "description": "A property, indexed like position:y, or a getter like is_on_floor or get_child_count."
+                },
+                "equals": {
+                  "type": "string",
+                  "description": "The value as text, typed as the property is: 5, true, [x, y] for a vector, #rrggbb for a colour."
+                },
+                "not_equals": {
+                  "type": "string",
+                  "description": "A value the property must not have, written as for equals."
+                },
+                "near": {
+                  "type": "string",
+                  "description": "A number, or [x, y] for a vector, that the property must be within tolerance of."
+                },
+                "tolerance": {
+                  "type": "number",
+                  "description": "near: how far off still passes; 0.01 when left out."
+                },
+                "gt": {
+                  "type": "number",
+                  "description": "Passes when the property is greater than this."
+                },
+                "lt": {
+                  "type": "number",
+                  "description": "Passes when the property is less than this."
+                },
+                "contains": {
+                  "type": "string",
+                  "description": "Text the property holds, or a node's name or path in a list of nodes."
+                },
+                "exists": {
+                  "type": "boolean",
+                  "description": "Whether a node is at path."
+                }
+              }
+            },
+            "description": "step_until: stop at the first frame where all of these pass, as in game_read check."
+          },
+          "scale": {
+            "type": "number",
+            "description": "speed: 0.0625 to 16; 1 is normal, 0.25 slow motion."
+          },
+          "on": {
+            "type": "boolean",
+            "description": "mute: true silences the game, false lets it play sound."
+          }
+        },
+        "required": [
+          "op"
+        ]
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "openWorldHint": false
+      },
+      "_meta": {
+        "com.nujan-agent.atp/group": "run"
+      }
+    },
+    {
+      "name": "input",
+      "description": "Play the running game like a person: taps, swipes, touches, keys, gamepad, text, waits and checks; up to 50 s a call.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "Each step is one of {\"tap\": [x, y], a node path or {\"text\": \"Start\"}}, {\"long_press\": {\"at\": [x, y], \"ms\": 600}}, {\"swipe\": {\"from\": [x, y], \"to\": [x, y], \"ms\": 300, \"index\": 0}}, {\"pinch\": {\"center\": [x, y], \"from\": 300, \"to\": 120, \"ms\": 300}}, {\"joypad\": {\"button\": 0, \"ms\": 100}} or {\"joypad\": {\"axis\": 0, \"value\": 1.0, \"ms\": 300}}, {\"touch\": {\"at\": [x, y], \"pressed\": true, \"index\": 1}}, {\"mouse\": {\"at\": [x, y], \"button\": \"left\", \"double\": false}}, {\"action\": {\"name\": \"jump\", \"ms\": 100}}, {\"key\": {\"name\": \"Space\", \"ms\": 100}}, {\"hold\": \"move_right\"}, {\"release\": \"move_right\"}, {\"text\": \"Player One\"}, {\"wait_ms\": 300}, {\"wait_frames\": 10}, {\"wait_until\": {\"checks\": [{\"path\": \"Main/Player\", \"property\": \"is_on_floor\", \"equals\": true}], \"timeout_ms\": 3000}}. A tap with text presses the visible control showing it. Coordinates are in the game's own size. One call's steps may take at most 50 s, each wait and hold counted in full; split longer play across calls."
+          },
+          "observe": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Node paths to read after the last step."
+          },
+          "keep_held": {
+            "type": "boolean",
+            "description": "Keep what hold steps pressed down after the call; false lets everything go at the end."
+          }
+        },
+        "required": [
+          "steps"
+        ]
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "openWorldHint": false
+      },
+      "_meta": {
+        "com.nujan-agent.atp/group": "run"
+      }
+    },
+    {
+      "name": "game_edit",
+      "description": "Set up a test in the running game, saved nowhere: set, call, spawn, remove, reload, change_scene, pause.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "enum": [
+              "set",
+              "call",
+              "spawn",
+              "remove",
+              "reload",
+              "change_scene",
+              "pause"
+            ]
+          },
+          "path": {
+            "type": "string",
+            "description": "set, call and remove: the node's path from the running scene's root."
+          },
+          "property": {
+            "type": "string",
+            "description": "set: the property, indexed like position:y."
+          },
+          "value": {
+            "type": "string",
+            "description": "set: the value as text, typed as the property is: 5, true, [x, y] for a vector, #rrggbb for a colour."
+          },
+          "method": {
+            "type": "string",
+            "description": "call: a method of the node or its script, such as take_damage."
+          },
+          "args": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "call: the method's arguments as text, each typed to its parameter; one that takes a node takes the node's path."
+          },
+          "parent": {
+            "type": "string",
+            "description": "spawn: where the new node goes; the scene's root when left out."
+          },
+          "scene": {
+            "type": "string",
+            "description": "spawn: a res:// scene to place; change_scene: the scene to switch to."
+          },
+          "type": {
+            "type": "string",
+            "description": "spawn: a node class, such as Sprite2D, in place of scene."
+          },
+          "name": {
+            "type": "string",
+            "description": "spawn: the new node's name."
+          },
+          "properties": {
+            "type": "object",
+            "description": "spawn: properties to set, such as {\"position\": [100, 200]}."
+          },
+          "on": {
+            "type": "boolean",
+            "description": "pause: true pauses with the game's own pause, false lifts it."
+          },
+          "sample_frames": {
+            "type": "integer",
+            "description": "set and call: read the node over this many physics frames right after the change, in the same call. The game runs on between calls, so a separate sample comes seconds later."
+          },
+          "sample_properties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "With sample_frames: the properties to read, like position:y or velocity; set reads the property it set when left out."
+          }
+        },
+        "required": [
+          "op"
+        ]
+      },
+      "annotations": {
+        "destructiveHint": false,
+        "openWorldHint": false
+      },
+      "_meta": {
+        "com.nujan-agent.atp/group": "run"
+      }
+    },
+    {
+      "name": "exec",
+      "description": "Run GDScript in the editor, or with target game in the running game; return sends a value back.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "The body of a function given host, the tool host node; return sends a value back."
+          },
+          "target": {
+            "type": "string",
+            "enum": [
+              "editor",
+              "game"
+            ],
+            "description": "editor when left out."
+          },
+          "seconds": {
+            "type": "number",
+            "description": "editor: the code's time limit, 30 when left out, at most 240; a loop still running then is stopped, code still awaiting is answered timeout."
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "annotations": {
+        "destructiveHint": true,
+        "openWorldHint": true
+      },
+      "_meta": {
+        "com.nujan-agent.atp/group": "exec"
+      }
+    },
+    {
+      "name": "tilemap_edit",
+      "description": "TileSets cut from an atlas image with collision, TileMapLayer nodes, and cells: one by one, rectangles, or text maps.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "enum": [
+              "tileset_create",
+              "layer_add",
+              "cells_set",
+              "rect_fill",
+              "map_from_ascii",
+              "erase",
+              "clear",
+              "read"
+            ]
+          },
+          "path": {
+            "type": "string",
+            "description": "tileset_create: the res:// .tres to write."
+          },
+          "texture": {
+            "type": "string",
+            "description": "tileset_create: the atlas image, res://."
+          },
+          "tile_size": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "tileset_create: [width, height] in pixels."
+          },
+          "margins": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "tileset_create: [x, y] pixels before the first tile."
+          },
+          "separation": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "tileset_create: [x, y] pixels between tiles."
+          },
+          "collision": {
+            "type": "string",
+            "enum": [
+              "full",
+              "none"
+            ],
+            "description": "tileset_create: a square collision shape on every tile, or none."
+          },
+          "layer": {
+            "type": "string",
+            "description": "The TileMapLayer's path in the scene."
+          },
+          "parent": {
+            "type": "string",
+            "description": "layer_add: where the new layer goes; the root when left out."
+          },
+          "name": {
+            "type": "string",
+            "description": "layer_add: the new layer's name."
+          },
+          "tileset": {
+            "type": "string",
+            "description": "layer_add: the res:// TileSet it paints with."
+          },
+          "cells": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "cells_set: [{\"at\":  [x, y], \"atlas\":  [column, row], \"source\":  0}]; erase: [[x, y]]."
+          },
+          "rect": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "rect_fill: [x, y, width, height] in cells."
+          },
+          "atlas": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "rect_fill: the tile, [column, row] in the atlas."
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "map_from_ascii: one string per row of cells, a mark per cell."
+          },
+          "legend": {
+            "type": "object",
+            "description": "map_from_ascii: each mark's tile, {\"#\":  [column, row]}; null erases. Space and . are skipped."
+          },
+          "origin": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "map_from_ascii: the cell the first mark lands on."
+          },
+          "scene": {
+            "type": "string",
+            "description": "The res:// scene to change, opened if it is not open. Needed unless the steps begin with new_scene."
+          },
+          "open": {
+            "type": "boolean",
+            "description": "false refuses to switch scenes instead of opening the one named."
+          },
+          "save": {
+            "type": "boolean",
+            "description": "Save the scene afterwards; true when left out."
+          },
+          "project": {
+            "type": "string",
+            "description": "The project the change is meant for; refused when another is open."
+          },
+          "request_id": {
+            "type": "string",
+            "description": "An id status can answer for, if this call times out."
+          }
+        },
+        "required": [
+          "op"
+        ]
+      },
+      "annotations": {
+        "destructiveHint": true
+      },
+      "_meta": {
+        "com.nujan-agent.atp/group": "edit"
+      }
+    },
+    {
+      "name": "animation_edit",
+      "description": "Animation: SpriteFrames from a sprite sheet, AnimationPlayer clips, value tracks with keys, and ready-made motions.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "enum": [
+              "frames_from_sheet",
+              "player_add",
+              "clip_create",
+              "track_add",
+              "preset",
+              "clip_remove",
+              "read"
+            ]
+          },
+          "node": {
+            "type": "string",
+            "description": "frames_from_sheet: the AnimatedSprite2D or 3D."
+          },
+          "texture": {
+            "type": "string",
+            "description": "frames_from_sheet: the res:// sprite sheet."
+          },
+          "frame_size": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "frames_from_sheet: [width, height] of one frame, or give grid."
+          },
+          "grid": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "frames_from_sheet: [columns, rows] of the sheet."
+          },
+          "animations": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "frames_from_sheet: [{\"name\":  \"run\", \"row\":  1, \"fps\":  10, \"loop\":  true}], or \"frames\":  [numbers]."
+          },
+          "player": {
+            "type": "string",
+            "description": "The AnimationPlayer's path; read also takes an animated sprite."
+          },
+          "parent": {
+            "type": "string",
+            "description": "player_add: where it goes; the root when left out."
+          },
+          "clip": {
+            "type": "string",
+            "description": "The clip's name."
+          },
+          "length": {
+            "type": "number",
+            "description": "clip_create: seconds."
+          },
+          "loop": {
+            "type": "string",
+            "enum": [
+              "none",
+              "linear",
+              "pingpong"
+            ]
+          },
+          "path": {
+            "type": "string",
+            "description": "track_add: \"Node:property\" from the player's root node, such as \"Coin:position\"."
+          },
+          "keys": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "track_add: [{\"time\":  0, \"value\":  [0, 0]}], values typed to the property."
+          },
+          "interpolation": {
+            "type": "string",
+            "enum": [
+              "linear",
+              "nearest",
+              "cubic"
+            ]
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "bob",
+              "pulse",
+              "spin",
+              "fade_in",
+              "fade_out",
+              "blink",
+              "shake"
+            ],
+            "description": "preset: the motion."
+          },
+          "target": {
+            "type": "string",
+            "description": "preset: the node it moves, from the player's root node."
+          },
+          "duration": {
+            "type": "number",
+            "description": "preset: seconds."
+          },
+          "amount": {
+            "type": "number",
+            "description": "preset: how far or how much; a sensible size when left out."
+          },
+          "autoplay": {
+            "type": "boolean",
+            "description": "clip_create and preset: the player plays this clip when the scene starts."
+          },
+          "play": {
+            "type": "string",
+            "description": "frames_from_sheet: the animation that plays when the scene starts; the first when left out."
+          },
+          "scene": {
+            "type": "string",
+            "description": "The res:// scene to change, opened if it is not open. Needed unless the steps begin with new_scene."
+          },
+          "open": {
+            "type": "boolean",
+            "description": "false refuses to switch scenes instead of opening the one named."
+          },
+          "save": {
+            "type": "boolean",
+            "description": "Save the scene afterwards; true when left out."
+          },
+          "project": {
+            "type": "string",
+            "description": "The project the change is meant for; refused when another is open."
+          },
+          "request_id": {
+            "type": "string",
+            "description": "An id status can answer for, if this call times out."
+          }
+        },
+        "required": [
+          "op"
+        ]
+      },
+      "annotations": {
+        "destructiveHint": true
+      },
+      "_meta": {
+        "com.nujan-agent.atp/group": "edit"
+      }
+    },
+    {
+      "name": "ui_edit",
+      "description": "Interfaces: Control trees from one description, anchors, touch buttons and a virtual joystick, and the layout read back.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "enum": [
+              "build",
+              "anchor",
+              "touch_button",
+              "touch_joystick",
+              "read"
+            ]
+          },
+          "parent": {
+            "type": "string",
+            "description": "build: where the tree goes; the root when left out."
+          },
+          "tree": {
+            "type": "object",
+            "description": "build: {type, name, text, properties, anchor, margin, min_size, h, v, theme {colors, font_sizes, constants, styles}, children}."
+          },
+          "node": {
+            "type": "string",
+            "description": "anchor: the Control; read: where to start."
+          },
+          "preset": {
+            "type": "string",
+            "description": "anchor: top_left, center, bottom_wide, full_rect and the other Control presets."
+          },
+          "anchor": {
+            "type": "string",
+            "description": "touch_button and touch_joystick: the screen corner, such as bottom_right."
+          },
+          "margin": {
+            "type": "integer",
+            "description": "Pixels from the screen's edge."
+          },
+          "action": {
+            "type": "string",
+            "description": "touch_button: the input action it presses."
+          },
+          "text": {
+            "type": "string",
+            "description": "touch_button: the label on it."
+          },
+          "radius": {
+            "type": "number",
+            "description": "touch_button: pixels."
+          },
+          "actions": {
+            "type": "object",
+            "description": "touch_joystick: {left, right, up, down} actions; ui_left and the others when left out."
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "fixed",
+              "dynamic",
+              "following"
+            ]
+          },
+          "size": {
+            "type": "number",
+            "description": "touch_joystick: pixels."
+          },
+          "name": {
+            "type": "string"
+          },
+          "scene": {
+            "type": "string",
+            "description": "The res:// scene to change, opened if it is not open. Needed unless the steps begin with new_scene."
+          },
+          "open": {
+            "type": "boolean",
+            "description": "false refuses to switch scenes instead of opening the one named."
+          },
+          "save": {
+            "type": "boolean",
+            "description": "Save the scene afterwards; true when left out."
+          },
+          "project": {
+            "type": "string",
+            "description": "The project the change is meant for; refused when another is open."
+          },
+          "request_id": {
+            "type": "string",
+            "description": "An id status can answer for, if this call times out."
+          }
+        },
+        "required": [
+          "op"
+        ]
+      },
+      "annotations": {
+        "destructiveHint": true
+      },
+      "_meta": {
+        "com.nujan-agent.atp/group": "edit"
+      }
+    },
+    {
+      "name": "resource_edit",
+      "description": "Materials, environments, curves, styles and any Resource: create, set properties, call methods, duplicate, read.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "enum": [
+              "create",
+              "set",
+              "call",
+              "duplicate",
+              "read"
+            ]
+          },
+          "path": {
+            "type": "string",
+            "description": "The res:// .tres file."
+          },
+          "node": {
+            "type": "string",
+            "description": "Instead of path: the node holding the resource, in the open scene."
+          },
+          "property": {
+            "type": "string",
+            "description": "With node: the property holding it, such as material or shape."
+          },
+          "type": {
+            "type": "string",
+            "description": "create: the class, such as StandardMaterial3D or Curve."
+          },
+          "properties": {
+            "type": "object",
+            "description": "create and set: values typed to each property, such as \"albedo_color\":  \"#ff8800\"."
+          },
+          "method": {
+            "type": "string",
+            "description": "call: such as add_point."
+          },
+          "args": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "call: the arguments as text, each typed to the method's parameter."
+          },
+          "from": {
+            "type": "string"
+          },
+          "to": {
+            "type": "string"
+          },
+          "replace": {
+            "type": "boolean",
+            "description": "create: replace a file that exists."
+          },
+          "scene": {
+            "type": "string",
+            "description": "The res:// scene to change; the open one when left out."
+          },
+          "open": {
+            "type": "boolean",
+            "description": "Open scene in the editor first, when it is another scene."
+          },
+          "save": {
+            "type": "boolean",
+            "description": "Save the scene afterwards; true when left out."
+          },
+          "project": {
+            "type": "string",
+            "description": "The project the change is meant for; refused when another is open."
+          },
+          "request_id": {
+            "type": "string",
+            "description": "An id status can answer for, if this call times out."
+          }
+        },
+        "required": [
+          "op"
+        ]
+      },
+      "annotations": {
+        "destructiveHint": true
+      },
+      "_meta": {
+        "com.nujan-agent.atp/group": "edit"
+      }
+    },
+    {
+      "name": "world3d_edit",
+      "description": "3D worlds: sky, lights, shapes with collision, CSG; models from parts saved as scenes; noise terrain; and scattering.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "enum": [
+              "environment",
+              "light",
+              "primitive",
+              "csg",
+              "model",
+              "terrain",
+              "scatter"
+            ]
+          },
+          "sky": {
+            "type": "string",
+            "enum": [
+              "procedural",
+              "color"
+            ]
+          },
+          "sky_top_color": {
+            "type": "string"
+          },
+          "ground_color": {
+            "type": "string"
+          },
+          "background_color": {
+            "type": "string"
+          },
+          "ambient_energy": {
+            "type": "number"
+          },
+          "tonemap": {
+            "type": "string",
+            "enum": [
+              "linear",
+              "reinhard",
+              "filmic",
+              "aces"
+            ]
+          },
+          "fog": {
+            "type": "boolean"
+          },
+          "glow": {
+            "type": "boolean"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "sun",
+              "omni",
+              "spot"
+            ],
+            "description": "light: its kind."
+          },
+          "shape": {
+            "type": "string",
+            "description": "primitive: box, sphere, capsule, cylinder, plane, prism, torus; csg: box, sphere, cylinder, torus."
+          },
+          "body": {
+            "type": "string",
+            "enum": [
+              "static",
+              "rigid",
+              "area",
+              "character",
+              "none"
+            ],
+            "description": "primitive: what holds the mesh and its collision."
+          },
+          "operation": {
+            "type": "string",
+            "enum": [
+              "union",
+              "intersection",
+              "subtraction"
+            ]
+          },
+          "size": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "description": "[x, y, z]."
+          },
+          "radius": {
+            "type": "number"
+          },
+          "height": {
+            "type": "number"
+          },
+          "position": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "description": "[x, y, z]."
+          },
+          "rotation_degrees": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "description": "[x, y, z]."
+          },
+          "color": {
+            "type": "string",
+            "description": "\"#rrggbb\" or a name."
+          },
+          "energy": {
+            "type": "number"
+          },
+          "shadows": {
+            "type": "boolean"
+          },
+          "range": {
+            "type": "number"
+          },
+          "use_collision": {
+            "type": "boolean"
+          },
+          "parent": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "scene": {
+            "type": "string",
+            "description": "The res:// scene to change, opened if it is not open. Needed unless the steps begin with new_scene."
+          },
+          "open": {
+            "type": "boolean",
+            "description": "false refuses to switch scenes instead of opening the one named."
+          },
+          "save": {
+            "type": "string",
+            "description": "model: the .tscn file to write, such as res://models/guard.tscn."
+          },
+          "project": {
+            "type": "string",
+            "description": "The project the change is meant for; refused when another is open."
+          },
+          "request_id": {
+            "type": "string",
+            "description": "An id status can answer for, if this call times out."
+          },
+          "parts": {
+            "type": "array",
+            "description": "model: parts in order, parents first. Each has name, shape (box, sphere, capsule, cylinder, cone, torus, prism, plane, lathe, extrude), size, at, color, and optionally parent, pivot, rotation_degrees, scale, profile (lathe), outline and depth (extrude), segments, flat, metallic, roughness, emission, unshaded, alpha. guide sys_models3d has an example.",
+            "items": {
+              "type": "object"
+            }
+          },
+          "merge": {
+            "type": "boolean",
+            "description": "model: join all parts into one mesh, for many copies. Not with pivots."
+          },
+          "from": {
+            "type": "string",
+            "description": "scatter: the saved model scene to copy."
+          },
+          "count": {
+            "type": "integer",
+            "description": "scatter: how many copies, up to 4000."
+          },
+          "area": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "description": "scatter: [x, z] in metres, around the origin."
+          },
+          "on": {
+            "type": "string",
+            "description": "scatter: a terrain node made by this tool, so copies sit on its surface."
+          },
+          "min_gap": {
+            "type": "number",
+            "description": "scatter: the least distance between copies."
+          },
+          "collide": {
+            "type": "boolean",
+            "description": "scatter: add collision, for at most 80 copies."
+          },
+          "yaw": {
+            "type": "boolean",
+            "description": "scatter: turn each copy at random; true when left out."
+          },
+          "resolution": {
+            "type": "integer",
+            "description": "terrain: cells along each side, up to 160."
+          },
+          "noise": {
+            "type": "string",
+            "description": "terrain: simplex, perlin, cellular or value."
+          },
+          "frequency": {
+            "type": "number",
+            "description": "terrain: smaller gives broader hills; 0.03 when left out."
+          },
+          "octaves": {
+            "type": "integer",
+            "description": "terrain: detail layers, 1 to 8."
+          },
+          "power": {
+            "type": "number",
+            "description": "terrain: above 1 flattens valleys and sharpens peaks; 1.4 when left out."
+          },
+          "terraces": {
+            "type": "integer",
+            "description": "terrain: steps of height; 0 for smooth."
+          },
+          "flat": {
+            "type": "boolean",
+            "description": "terrain: show facets; true when left out."
+          },
+          "colors": {
+            "type": "array",
+            "description": "terrain: bands from low to high, each [height from 0 to 1, colour].",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "seed": {
+            "type": "integer",
+            "description": "terrain, scatter: the same seed gives the same result."
+          }
+        },
+        "required": [
+          "op"
+        ]
+      },
+      "annotations": {
+        "destructiveHint": true
+      },
+      "_meta": {
+        "com.nujan-agent.atp/group": "edit"
+      }
+    },
+    {
+      "name": "audio_edit",
+      "description": "Make a sound effect from a preset, or a looping tune from a mood, as a .wav in the project. No download.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "enum": [
+              "sfx",
+              "music"
+            ]
+          },
+          "path": {
+            "type": "string",
+            "description": "The res:// .wav file to write, such as res://audio/jump.wav."
+          },
+          "preset": {
+            "type": "string",
+            "enum": [
+              "jump",
+              "land",
+              "coin",
+              "powerup",
+              "hit",
+              "stomp",
+              "explosion",
+              "laser",
+              "blip",
+              "win",
+              "lose"
+            ],
+            "description": "sfx: a ready effect. The numbers below change it, or make one without it."
+          },
+          "wave": {
+            "type": "string",
+            "enum": [
+              "square",
+              "triangle",
+              "saw",
+              "sine",
+              "noise"
+            ],
+            "description": "sfx: the sound's colour."
+          },
+          "from": {
+            "type": "number",
+            "description": "sfx: the starting pitch in Hz."
+          },
+          "to": {
+            "type": "number",
+            "description": "sfx: the pitch it slides to in Hz."
+          },
+          "ms": {
+            "type": "number",
+            "description": "sfx: how long, in milliseconds."
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "description": "sfx: semitones it jumps to in turn, for a jingle."
+          },
+          "step_ms": {
+            "type": "number",
+            "description": "sfx: how long each of steps lasts."
+          },
+          "volume": {
+            "type": "number",
+            "description": "sfx: 0 to 1."
+          },
+          "mood": {
+            "type": "string",
+            "enum": [
+              "happy",
+              "calm",
+              "tense",
+              "dark",
+              "heroic"
+            ],
+            "description": "music: the feel. happy when left out."
+          },
+          "tempo": {
+            "type": "number",
+            "description": "music: beats a minute; the mood's own when left out."
+          },
+          "bars": {
+            "type": "integer",
+            "description": "music: its length, 1 to 16; 8 when left out."
+          },
+          "key_hz": {
+            "type": "number",
+            "description": "music: the key's root note in Hz; 130.81 (C) when left out."
+          },
+          "seed": {
+            "type": "integer",
+            "description": "The same seed gives the same tune; another gives a different one."
+          }
+        },
+        "required": [
+          "op",
+          "path"
+        ]
+      },
+      "annotations": {
+        "idempotentHint": true
+      },
+      "_meta": {
+        "com.nujan-agent.atp/group": "edit"
+      }
+    },
+    {
+      "name": "image_edit",
+      "description": "Pictures: exact pixel art from rows of letters, noise and gradient textures, look at one, read colours, and change them.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "enum": [
+              "pixels",
+              "noise",
+              "gradient",
+              "info",
+              "palette",
+              "look",
+              "resize",
+              "crop",
+              "flip",
+              "rotate",
+              "recolor",
+              "pixelate",
+              "sheet"
+            ]
+          },
+          "path": {
+            "type": "string",
+            "description": "The picture to read or change; for pixels, noise, gradient and sheet, the .png to write."
+          },
+          "to": {
+            "type": "string",
+            "description": "Where a changed picture goes, a .png; the same file when left out."
+          },
+          "palette": {
+            "type": "object",
+            "description": "pixels: one character to a colour, such as {\".\": \"transparent\", \"k\": \"#1a1c2c\"}."
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "pixels: equal-length strings, one character for each pixel."
+          },
+          "frames": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "pixels: several sets of rows, side by side as a sprite sheet."
+          },
+          "scale": {
+            "type": "number",
+            "description": "pixels: whole-number enlargement. resize: a factor."
+          },
+          "size": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "description": "noise, gradient, resize: [width, height]."
+          },
+          "colors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "noise, gradient: colours from low to high. recolor, pixelate: move every pixel to the nearest of these."
+          },
+          "seed": {
+            "type": "integer",
+            "description": "noise: the same seed gives the same picture."
+          },
+          "frequency": {
+            "type": "number",
+            "description": "noise: smaller gives larger shapes."
+          },
+          "type": {
+            "type": "string",
+            "description": "noise: simplex, perlin, cellular or value."
+          },
+          "octaves": {
+            "type": "integer",
+            "description": "noise: detail layers."
+          },
+          "tileable": {
+            "type": "boolean",
+            "description": "noise: repeats without a seam; true when left out."
+          },
+          "direction": {
+            "type": "string",
+            "description": "gradient: vertical, horizontal or radial."
+          },
+          "steps": {
+            "type": "integer",
+            "description": "gradient: bands instead of smooth."
+          },
+          "count": {
+            "type": "integer",
+            "description": "palette: how many colours to read."
+          },
+          "filter": {
+            "type": "string",
+            "description": "resize: lanczos or nearest (pixel art)."
+          },
+          "rect": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "description": "crop: [x, y, w, h]."
+          },
+          "axis": {
+            "type": "string",
+            "description": "flip: x or y."
+          },
+          "turns": {
+            "type": "integer",
+            "description": "rotate: quarter turns clockwise."
+          },
+          "map": {
+            "type": "object",
+            "description": "recolor: {\"#old\": \"#new\"}."
+          },
+          "tolerance": {
+            "type": "number",
+            "description": "recolor with map: how close a colour must be."
+          },
+          "width": {
+            "type": "integer",
+            "description": "pixelate: the new width in pixels."
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "sheet: pictures of one size, in order."
+          },
+          "columns": {
+            "type": "integer",
+            "description": "sheet: how many across."
+          }
+        },
+        "required": ["op", "path"]
+      },
+      "_meta": {
+        "com.nujan-agent.atp/group": "edit"
+      }
+    },
+    {
+      "name": "assets",
+      "description": "Art, models, materials, sound, fonts and code from outside: search, preview, and fetch into the project with credits.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "enum": [
+              "search",
+              "look",
+              "fetch"
+            ]
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "polyhaven",
+              "ambientcg",
+              "godot",
+              "url"
+            ]
+          },
+          "query": {
+            "type": "string",
+            "description": "search: words to look for."
+          },
+          "type": {
+            "type": "string",
+            "description": "search: polyhaven takes hdris, textures, models; ambientcg takes material, hdri, 3d-model, decal; godot takes addon, project."
+          },
+          "id": {
+            "type": "string",
+            "description": "look, fetch: an id from search."
+          },
+          "url": {
+            "type": "string",
+            "description": "look, fetch: a direct https address to a file you found. fetch also needs license, read from its page."
+          },
+          "license": {
+            "type": "string",
+            "description": "fetch with url: what the file's page says, such as CC0."
+          },
+          "credit": {
+            "type": "string",
+            "description": "fetch with url: who made it, for the credits."
+          },
+          "resolution": {
+            "type": "string",
+            "description": "fetch: 1k when left out; phones rarely need more."
+          },
+          "into": {
+            "type": "string",
+            "enum": [
+              "study"
+            ],
+            "description": "fetch: place it in res://study/ to read rather than use; Godot ignores that folder."
+          },
+          "limit": {
+            "type": "integer",
+            "description": "search: how many to list."
+          }
+        },
+        "required": [
+          "op"
+        ]
+      },
+      "annotations": {
+        "openWorldHint": true
+      },
+      "_meta": {
+        "com.nujan-agent.atp/group": "edit"
+      }
+    },
+    {
+      "name": "export",
+      "description": "The open game as an APK signed on this phone, saved in Downloads. Export once it is finished; run try tests a change.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The game's name on a home screen; the project's name when left out."
+          },
+          "version": {
+            "type": "integer",
+            "description": "A number that rises with each one shared, so an update installs over the last."
+          },
+          "install": {
+            "type": "boolean",
+            "description": "Have Android's installer ask the person once this turn ends, for the last game exported in it; the person confirms there."
+          }
+        }
+      },
+      "_meta": {
+        "com.nujan-agent.atp/group": "edit"
+      }
+    }
+  ]
+}

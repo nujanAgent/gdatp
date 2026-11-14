@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The launcher icon's long-press menu: ATP's Connected apps screen, where the person switches what each connected
+     app may do in GDatp. -->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+	<shortcut
+		android:shortcutId="connected_apps"
+		android:enabled="true"
+		android:icon="@mipmap/gdatp_icon"
+		android:shortcutShortLabel="@string/gdatp_shortcut_connected_apps">
+		<intent
+			android:action="com.nujan_agent.atp.action.CONNECTED_APPS"
+			android:targetPackage="com.gd.atp"
+			android:targetClass="com.nujan_agent.atp.provider.AtpConnectionsActivity" />
+	</shortcut>
+</shortcuts>

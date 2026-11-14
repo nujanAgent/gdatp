@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!-- GDatp's launcher icon: an orange game pad cross with an editing pointer, on near black. -->
+	<color name="gdatp_icon_background">#16191E</color>
+	<color name="gdatp_icon_mark">#FF5E1A</color>
+	<color name="gdatp_icon_pointer">#FFFFFF</color>
+</resources>

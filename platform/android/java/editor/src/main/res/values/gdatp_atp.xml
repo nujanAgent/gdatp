@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!-- What a connecting app shows of GDatp's ATP manifest (res/xml/atp_provider.xml). Summaries stay within 80 characters. -->
+	<string name="gdatp_atp_server_title">GDatp, Godot editor</string>
+	<string name="gdatp_atp_group_read">Read the project</string>
+	<string name="gdatp_atp_group_read_summary">List projects; read files, scenes, settings, logs and the running game</string>
+	<string name="gdatp_atp_group_edit">Make and edit projects</string>
+	<string name="gdatp_atp_group_edit_summary">Make and open projects; change scenes, scripts, files and settings, with undo</string>
+	<string name="gdatp_atp_group_run">Run the game</string>
+	<string name="gdatp_atp_group_run_summary">Run the project\'s game and play it with taps and keys</string>
+	<string name="gdatp_atp_group_exec">Run any code</string>
+	<string name="gdatp_atp_group_exec_summary">Run any GDScript in the editor or the game, with the editor\'s access</string>
+	<!-- Where the person turns a group on, as the kit's consent screen and a refused call name it (the kit's string). -->
+	<string name="atp_grants_place">%1$s\'s Connected apps (long-press its icon)</string>
+	<string name="gdatp_shortcut_connected_apps">Connected apps</string>
+</resources>

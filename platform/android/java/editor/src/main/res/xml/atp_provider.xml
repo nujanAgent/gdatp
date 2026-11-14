@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- What a host reads before it binds (ATP SPEC.md 5.2), and where ATP's provider kit finds GDatp's tools (entry). Its
+     privacy policy and contact are GDatp's repository pages. -->
+<atp-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    spec="1"
+    privacyPolicy="https://github.com/nujanAgent/gdatp/blob/HEAD/PRIVACY.md"
+    contact="https://github.com/nujanAgent/gdatp/issues">
+    <server
+        id="main"
+        mcpEras="2025-06-18"
+        toolFamily="code files"
+        entry="com.gd.atp.GDatpTools"
+        android:title="@string/gdatp_atp_server_title" />
+    <group
+        id="read"
+        risk="low"
+        kind="read"
+        grant="in-flow"
+        android:title="@string/gdatp_atp_group_read"
+        android:summary="@string/gdatp_atp_group_read_summary" />
+    <group
+        id="edit"
+        risk="medium"
+        kind="read write"
+        grant="in-flow"
+        android:title="@string/gdatp_atp_group_edit"
+        android:summary="@string/gdatp_atp_group_edit_summary" />
+    <group
+        id="run"
+        risk="medium"
+        kind="exec"
+        grant="in-flow"
+        android:title="@string/gdatp_atp_group_run"
+        android:summary="@string/gdatp_atp_group_run_summary" />
+    <group
+        id="exec"
+        risk="critical"
+        kind="exec read write"
+        grant="provider-ui"
+        android:title="@string/gdatp_atp_group_exec"
+        android:summary="@string/gdatp_atp_group_exec_summary" />
+</atp-provider>
