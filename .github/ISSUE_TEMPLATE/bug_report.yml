@@ -1,0 +1,40 @@
+name: Bug report
+description: Something in GDatp's tools, its connection screens or its build does not work
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        One issue for one problem, please. If Godot's own Android editor has the problem too, report it to Godot instead (the link is on the previous page). Issues are public: leave out personal data and files that hold it.
+
+  - type: textarea
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Steps to reproduce
+      description: The shortest steps that show it, and a small project if one is needed.
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: GDatp version
+      description: As shown in the Project Manager.
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Phone and Android version
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Connected app
+      description: The app that called GDatp's tools, such as NuJan, and its version, if one was involved.
