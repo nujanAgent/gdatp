@@ -51,12 +51,12 @@ Files: modules/gdatp/*
  platform/android/java/editor/src/debug/*
  gdatp/*
 Comment: GDatp, the changes this fork makes to Godot's Android editor
-Copyright: 2026-present, NuJan (https://www.nujan-agent.com)
+Copyright: 2026-present, NuJan (https://nujan-agent.com)
 License: Expat
 
 Files: platform/android/java/third_party/atp/*
 Comment: ATP (App Tools Protocol for Android), its wire module and provider kit
-Copyright: 2026, NuJan (https://www.nujan-agent.com)
+Copyright: 2026, NuJan (https://nujan-agent.com)
 License: Apache-2.0
 
 Files: core/math/convex_hull.cpp
