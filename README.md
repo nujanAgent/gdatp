@@ -16,7 +16,7 @@ Godot Foundation; GDatp has its own name and icon.
 
 ## What it adds to the editor
 
-- 26 tools an agent can call, each with several actions: projects, files and resources, scenes and nodes, scripts and
+- Tools an agent can call, each with several actions: projects, files and resources, scenes and nodes, scripts and
   their errors, animation, tile maps, user interfaces, 3D, running the game, input steps, screenshots, logs and undo.
   What each does is in [GDATP.md](GDATP.md).
 - A connection screen where you allow an app, and a screen of connected apps where you choose what each may use. Code
